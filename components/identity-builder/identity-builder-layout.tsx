@@ -75,11 +75,55 @@ export function IdentityBuilderLayout() {
     })
   }
 
-  const handleShareX = () => {
-    const label = mode === "pfp" ? "PFP" : "Builder ID"
-    const names = state.members.map(m => m.name || "Builder").join(" × ")
-    const text = encodeURIComponent(`Just built my ${label} for HH Goa 2026! 🌴🚀\n${names} — ${state.passId}\n#HHGoa2026 #BuildersOfGoa`)
-    window.open(`https://x.com/intent/tweet?text=${text}`, "_blank")
+  const handleShareX = async () => {
+    const canvas = canvasRef.current
+    const teamName = state.teamName || "NovaSync"
+    const name = state.members[0]?.name || "BUILDER"
+    const passId = state.passId || "HH-2026-3363"
+    const title = state.title || "HH GOA BUILDER"
+    const cls = state.members[0]?.builderClass || "BUILDER"
+
+    const tweetText = 
+      `Just generated my HH Goa 2026\n` +
+      `Presented by Team ${teamName}\n` +
+      `#FrameInGoa`
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://hh-goa-2026.vercel.app"
+    const shareUrl = `${origin}/?passId=${encodeURIComponent(passId)}&name=${encodeURIComponent(name)}&team=${encodeURIComponent(teamName)}&mode=${mode}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
+
+    if (canvas) {
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+            setCopied(true)
+            setTimeout(() => setCopied(false), 3000)
+          } catch {
+            // ignore
+          }
+
+          const file = new File([blob], `hh-goa-pass-${passId}.png`, { type: "image/png" })
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "HH Goa 2026 Pass",
+                text: `${tweetText}\n${shareUrl}`,
+                files: [file],
+              })
+              return
+            } catch {
+              // fallback
+            }
+          }
+        }
+
+        const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+        window.open(intentUrl, "_blank")
+      })
+    } else {
+      const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+      window.open(intentUrl, "_blank")
+    }
   }
 
   return (

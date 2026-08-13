@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useGoaTimeContext } from "@/components/goa-time-provider"
 
 const SIGNS = [
@@ -12,9 +13,26 @@ const SIGNS = [
 
 export function GoaStreetSign() {
   const { palette } = useGoaTimeContext()
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 30)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll() // check on mount
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   return (
-    <nav aria-label="Section navigation" className="fixed left-1/2 top-3 z-40 -translate-x-1/2">
+    <nav
+      aria-label="Section navigation"
+      className={`fixed left-1/2 top-3 z-40 -translate-x-1/2 transition-all duration-300 ease-in-out ${
+        scrolled ? "opacity-0 -translate-y-6 pointer-events-none" : "opacity-100 translate-y-0 pointer-events-auto"
+      }`}
+    >
       <div
         className="flex items-end gap-0 rounded-xl border px-3 py-2 backdrop-blur-md transition-colors duration-[3000ms]"
         style={{ borderColor: `${palette.accent}44`, background: "rgba(11,14,26,0.6)" }}

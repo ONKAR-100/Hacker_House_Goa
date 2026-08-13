@@ -20,10 +20,23 @@ const caveat = Caveat({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://hh-goa-2026.vercel.app'),
   title: 'HH Goa 2026 — Builder ID Generator',
   description:
-    'Build your festival ID card for HH Goa 2026. Upload your photo, pick a frame, stack your badges, and ship your Builder ID — Solo, Duo, or Trio. Code. Coconuts. Chaos.',
+    'Build your festival ID card for HH Goa 2026. Upload your photo, pick a frame, stack your badges, and ship your Builder ID — Solo, Duo, or Trio. Code. Coconuts. Chaos. #FrameInGoa',
   generator: 'v0.app',
+  openGraph: {
+    title: 'HH Goa 2026 — Builder Access Pass',
+    description: 'Build your festival ID card for HH Goa 2026. #FrameInGoa',
+    type: 'website',
+    images: [{ url: '/placeholder-user.jpg', width: 1200, height: 630, alt: 'HH Goa 2026 Pass' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HH Goa 2026 — Builder Access Pass',
+    description: 'Build your festival ID card for HH Goa 2026. #FrameInGoa',
+    images: ['/placeholder-user.jpg'],
+  },
   icons: {
     icon: [
       {

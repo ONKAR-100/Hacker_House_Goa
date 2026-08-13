@@ -80,16 +80,55 @@ export function LivePreviewPanel() {
   // ── Share to X ──
   const handleShareX = async () => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const teamName = state.teamName || "NovaSync"
+    const name = state.members[0]?.name || "BUILDER"
+    const passId = state.passId || "HH-2026-3363"
+    const title = state.title || "HH GOA BUILDER"
+    const cls = state.members[0]?.builderClass || "BUILDER"
 
-    const label = activeTab === "pfp" ? "PFP" : "Builder ID"
-    const text = encodeURIComponent(
-      `Just built my ${label} for HH Goa 2026! 🌴🚀\n\n` +
-      `${state.members.map((m) => m.name || "Builder").join(" × ")} — ${state.passId}\n\n` +
-      `#HHGoa2026 #Hackathon #BuildersOfGoa`
-    )
-    const url = encodeURIComponent("https://hh-goa-2026.vercel.app/")
-    window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, "_blank")
+    const tweetText = 
+      `Just generated my HH Goa 2026\n` +
+      `Presented by Team ${teamName}\n` +
+      `#FrameInGoa`
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://hh-goa-2026.vercel.app"
+    const shareUrl = `${origin}/?passId=${encodeURIComponent(passId)}&name=${encodeURIComponent(name)}&team=${encodeURIComponent(teamName)}&mode=${activeTab}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
+
+    if (canvas) {
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+            setCopied(true)
+            setTimeout(() => setCopied(false), 3000)
+          } catch {
+            // ignore clipboard errors
+          }
+
+          // Try native Web Share API with image file attachment
+          const file = new File([blob], `hh-goa-pass-${passId}.png`, { type: "image/png" })
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "HH Goa 2026 Pass",
+                text: `${tweetText}\n${shareUrl}`,
+                files: [file],
+              })
+              return
+            } catch {
+              // fallback to Web Intent if user cancels share dialog
+            }
+          }
+        }
+
+        // Open X Tweet Intent with pre-filled caption & hashtag #FrameInGoa & image URL
+        const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+        window.open(intentUrl, "_blank")
+      })
+    } else {
+      const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+      window.open(intentUrl, "_blank")
+    }
   }
 
   // ── Copy to clipboard ──
