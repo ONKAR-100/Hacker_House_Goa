@@ -1,0 +1,44 @@
+"use client"
+
+import { useGoaTimeContext } from "@/components/goa-time-provider"
+
+const SIGNS = [
+  { label: "Beach", href: "#top", rotate: -3 },
+  { label: "Build", href: "#build", rotate: 2 },
+  { label: "Coffee", href: "#why-goa", rotate: -2 },
+  { label: "Chaos", href: "#shack-status", rotate: 3 },
+  { label: "Surf", href: "#footer", rotate: -1 },
+]
+
+export function GoaStreetSign() {
+  const { palette } = useGoaTimeContext()
+
+  return (
+    <nav aria-label="Section navigation" className="fixed left-1/2 top-3 z-40 -translate-x-1/2">
+      <div
+        className="flex items-end gap-0 rounded-xl border px-3 py-2 backdrop-blur-md transition-colors duration-[3000ms]"
+        style={{ borderColor: `${palette.accent}44`, background: "rgba(11,14,26,0.6)" }}
+      >
+        {/* signpost */}
+        <div className="hidden h-8 w-1.5 rounded-sm bg-[#5b3a29] sm:block" aria-hidden />
+        <ul className="flex flex-wrap items-center gap-1.5 pl-0 sm:pl-2">
+          {SIGNS.map((sign) => (
+            <li key={sign.label}>
+              <a
+                href={sign.href}
+                className="block rounded-[3px] border-2 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[#3b2416] shadow-sm transition-transform hover:-translate-y-0.5 sm:text-xs"
+                style={{
+                  background: "#e8c98a",
+                  borderColor: "#5b3a29",
+                  transform: `rotate(${sign.rotate}deg)`,
+                }}
+              >
+                {sign.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  )
+}
