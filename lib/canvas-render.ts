@@ -561,8 +561,8 @@ export async function renderTeamId(
     ctx.textAlign = "center"; ctx.textBaseline = "middle"
     ctx.fillText(roleTag, cX, tagY + 9)
 
-    // PFP Avatar with Ring
-    const photoY = memberStartY + 74
+    // PFP Avatar with Ring (shifted down to prevent overlapping role tag pills)
+    const photoY = memberStartY + 90
     drawFrameRing(ctx, state.frameId, cX, photoY, AVR, 5)
     drawPhotoCircle(ctx, photoImgs[i], cX, photoY, AVR)
 
@@ -578,13 +578,13 @@ export async function renderTeamId(
       displayMName = displayMName.slice(0, -1)
     }
     if (displayMName.length < mName.length) displayMName += "…"
-    ctx.fillText(displayMName, cX, photoY + AVR + 10)
+    ctx.fillText(displayMName, cX, photoY + AVR + 12)
 
     // Member Class / Role Pill
     const mClass = (m?.builderClass || "BUILDER").toUpperCase()
     ctx.font = "600 10px sans-serif"
     const classW = ctx.measureText(mClass).width + 14
-    const classY = photoY + AVR + 30
+    const classY = photoY + AVR + 32
     rr(ctx, cX - classW / 2, classY, classW, 18, 9)
     ctx.fillStyle = `${ACCENT}18`; ctx.fill()
     ctx.strokeStyle = `${ACCENT}55`; ctx.lineWidth = 1; ctx.stroke()
