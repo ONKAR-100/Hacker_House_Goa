@@ -78,7 +78,7 @@ export function LivePreviewPanel() {
   }
 
   // ── Share to X ──
-  const handleShareX = () => {
+  const handleShareX = async () => {
     const canvas = canvasRef.current
     const teamName = state.teamName || "NovaSync"
     const name = state.members[0]?.name || "BUILDER"
@@ -97,24 +97,24 @@ export function LivePreviewPanel() {
     }
     const shareUrl = `${origin}/?passId=${encodeURIComponent(passId)}&name=${encodeURIComponent(name)}&team=${encodeURIComponent(teamName)}&mode=${activeTab}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
 
-    // Directly open X (Twitter) Tweet Composer in a new tab
-    const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
-    window.open(intentUrl, "_blank")
-
-    // Background: copy pass image to clipboard for convenient pasting if desired
+    // Copy pass image to clipboard first
     if (canvas) {
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          try {
+      try {
+        canvas.toBlob(async (blob) => {
+          if (blob) {
             await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
             setCopied(true)
             setTimeout(() => setCopied(false), 3000)
-          } catch {
-            // ignore
           }
-        }
-      })
+        })
+      } catch {
+        // ignore
+      }
     }
+
+    // Open X (Twitter) Tweet Composer in a new tab
+    const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+    window.open(intentUrl, "_blank")
   }
 
   // ── Copy to clipboard ──

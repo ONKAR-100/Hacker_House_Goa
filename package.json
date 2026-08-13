@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/suncalc": "^1.9.2",
     "@vercel/analytics": "1.6.1",
+    "@vercel/og": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "jsbarcode": "^3.12.3",
@@ -22,6 +24,7 @@
     "react": "^19",
     "react-dom": "^19",
     "react-easy-crop": "^6.2.3",
+    "satori": "^0.29.0",
     "shadcn": "^4.8.0",
     "suncalc": "^2.0.1",
     "tailwind-merge": "^3.3.1",

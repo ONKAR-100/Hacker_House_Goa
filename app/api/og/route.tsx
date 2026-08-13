@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og"
 import { NextRequest } from "next/server"
 
-export const runtime = "nodejs"
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
 
@@ -39,9 +37,7 @@ export async function GET(req: NextRequest) {
             backgroundColor: "#FFFCF5",
             color: "#164A41",
             padding: "36px",
-            boxSizing: "border-box",
             justifyContent: "space-between",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
           }}
         >
           {/* Header Banner */}
@@ -60,7 +56,7 @@ export async function GET(req: NextRequest) {
             <div style={{ fontSize: "18px", fontWeight: "bold", letterSpacing: "3px", color: "#FFC857" }}>
               [ HH GOA 2026 ]
             </div>
-            <div style={{ fontSize: "32px", fontWeight: "900", letterSpacing: "4px", marginTop: "4px" }}>
+            <div style={{ fontSize: "32px", fontWeight: 900, letterSpacing: "4px", marginTop: "4px" }}>
               {mode === "team-id" ? "OFFICIAL TEAM ACCESS PASS" : "BUILDER ACCESS PASS"}
             </div>
           </div>
@@ -76,12 +72,11 @@ export async function GET(req: NextRequest) {
               padding: "0 24px",
             }}
           >
-            {/* Left Col */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ fontSize: "16px", fontWeight: "bold", color: "#007C91", letterSpacing: "2px" }}>
                 BUILDER / LEADER
               </div>
-              <div style={{ fontSize: "44px", fontWeight: "900", color: "#164A41", letterSpacing: "1px" }}>
+              <div style={{ fontSize: "44px", fontWeight: 900, color: "#164A41" }}>
                 {name}
               </div>
 
@@ -92,7 +87,7 @@ export async function GET(req: NextRequest) {
                     color: "white",
                     padding: "8px 20px",
                     borderRadius: "20px",
-                    fontSize: '18px',
+                    fontSize: "18px",
                     fontWeight: "bold",
                   }}
                 >
@@ -113,7 +108,6 @@ export async function GET(req: NextRequest) {
               </div>
             </div>
 
-            {/* Right Col */}
             <div
               style={{
                 display: "flex",
@@ -125,7 +119,7 @@ export async function GET(req: NextRequest) {
               <div style={{ fontSize: "16px", fontWeight: "bold", color: "#007C91", letterSpacing: "2px" }}>
                 TEAM
               </div>
-              <div style={{ fontSize: "32px", fontWeight: "800", color: "#164A41" }}>
+              <div style={{ fontSize: "32px", fontWeight: 800, color: "#164A41" }}>
                 {team}
               </div>
               <div
