@@ -18,7 +18,8 @@ export async function generateMetadata({
   const title = (params.title as string) || "HH GOA BUILDER"
   const cls = (params.cls as string) || "BUILDER"
 
-  const ogImageUrl = `/api/og?name=${encodeURIComponent(name)}&team=${encodeURIComponent(team)}&passId=${encodeURIComponent(passId)}&mode=${encodeURIComponent(mode)}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
+  const baseUrl = "https://hacker-house-goa-rxe4.vercel.app"
+  const ogImageUrl = `${baseUrl}/api/og?name=${encodeURIComponent(name)}&team=${encodeURIComponent(team)}&passId=${encodeURIComponent(passId)}&mode=${encodeURIComponent(mode)}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
 
   return {
     title: `HH Goa 2026 Pass — ${name} (Team ${team})`,

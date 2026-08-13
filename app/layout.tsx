@@ -20,7 +20,7 @@ const caveat = Caveat({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hh-goa-2026.vercel.app'),
+  metadataBase: new URL('https://hacker-house-goa-rxe4.vercel.app'),
   title: 'HH Goa 2026 — Builder ID Generator',
   description:
     'Build your festival ID card for HH Goa 2026. Upload your photo, pick a frame, stack your badges, and ship your Builder ID — Solo, Duo, or Trio. Code. Coconuts. Chaos. #FrameInGoa',

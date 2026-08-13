@@ -75,7 +75,7 @@ export function IdentityBuilderLayout() {
     })
   }
 
-  const handleShareX = async () => {
+  const handleShareX = () => {
     const canvas = canvasRef.current
     const teamName = state.teamName || "NovaSync"
     const name = state.members[0]?.name || "BUILDER"
@@ -88,9 +88,17 @@ export function IdentityBuilderLayout() {
       `Presented by Team ${teamName}\n` +
       `#FrameInGoa`
 
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://hh-goa-2026.vercel.app"
+    let origin = typeof window !== "undefined" ? window.location.origin : "https://hacker-house-goa-rxe4.vercel.app"
+    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      origin = "https://hacker-house-goa-rxe4.vercel.app"
+    }
     const shareUrl = `${origin}/?passId=${encodeURIComponent(passId)}&name=${encodeURIComponent(name)}&team=${encodeURIComponent(teamName)}&mode=${mode}&title=${encodeURIComponent(title)}&cls=${encodeURIComponent(cls)}`
 
+    // Directly open X (Twitter) Tweet Composer in a new tab
+    const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
+    window.open(intentUrl, "_blank")
+
+    // Background: copy pass image to clipboard for convenient pasting if desired
     if (canvas) {
       canvas.toBlob(async (blob) => {
         if (blob) {
@@ -101,28 +109,8 @@ export function IdentityBuilderLayout() {
           } catch {
             // ignore
           }
-
-          const file = new File([blob], `hh-goa-pass-${passId}.png`, { type: "image/png" })
-          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                title: "HH Goa 2026 Pass",
-                text: `${tweetText}\n${shareUrl}`,
-                files: [file],
-              })
-              return
-            } catch {
-              // fallback
-            }
-          }
         }
-
-        const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
-        window.open(intentUrl, "_blank")
       })
-    } else {
-      const intentUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`
-      window.open(intentUrl, "_blank")
     }
   }
 
