@@ -21,6 +21,7 @@ export const BUILDER_STEPS: BuilderStep[] = [
 const MODE_STEP_IDS: Record<GenerateMode, string[]> = {
   "pfp":        ["photo", "frame", "effects"],
   "builder-id": ["type", "photo", "frame", "effects", "badges", "class", "title", "signature"],
+  "team-id":    ["type", "photo", "frame", "class", "title", "signature"],
 }
 
 export function getStepsForMode(mode: GenerateMode): BuilderStep[] {

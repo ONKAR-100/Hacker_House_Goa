@@ -21,19 +21,28 @@ const MODE_OPTIONS: ModeOption[] = [
     id: "pfp",
     label: "Profile Picture",
     shortDesc: "Just the photo",
-    longDesc: "Crop, frame, and apply Goa effects to your photo. Export a perfect circle or square PFP ready for Twitter, GitHub, LinkedIn.",
+    longDesc: "Crop, frame, and apply Goa effects to your photo. Export a perfect circle or square PFP ready for socials.",
     icon: ImageIcon,
     steps: ["Photo", "Frame", "Effects"],
     emoji: "🌅",
   },
   {
     id: "builder-id",
-    label: "Builder ID",
-    shortDesc: "Full identity card",
+    label: "Solo Builder ID",
+    shortDesc: "Full solo identity card",
     longDesc: "The complete HH Goa 2026 experience — photo, frame, effects, badges, class, title, and signature on one shareable card.",
     icon: IdCard,
     steps: ["Photo", "Frame", "Effects", "Badges", "Class", "Title", "Sign"],
     emoji: "🪪",
+  },
+  {
+    id: "team-id",
+    label: "Team Pass ID",
+    shortDesc: "Horizontal Squad Pass",
+    longDesc: "Official Team Pass for Solo, Duo, or Trio squads — featuring Team Name, Leader & Member PFPs, roles, and squad title.",
+    icon: Users,
+    steps: ["Squad Type", "Team Info", "Member PFPs", "Roles", "Badges", "Title"],
+    emoji: "👥",
   },
 ]
 
@@ -61,7 +70,7 @@ export function GenerateModePicker() {
       </div>
 
       {/* Mode cards */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {MODE_OPTIONS.map((opt) => {
           const Icon = opt.icon
           const active = state.generateMode === opt.id

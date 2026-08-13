@@ -29,7 +29,7 @@ export function createEmptyMember(id: string): BuilderMember {
   }
 }
 
-export type GenerateMode = "pfp" | "builder-id"
+export type GenerateMode = "pfp" | "builder-id" | "team-id"
 
 export interface IdentityState {
   generateMode: GenerateMode

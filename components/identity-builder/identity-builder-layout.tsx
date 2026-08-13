@@ -1,28 +1,34 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Download, RefreshCw, ImageIcon, IdCard, CheckCircle2 } from "lucide-react"
+import { Download, RefreshCw, ImageIcon, IdCard, Users, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useIdentity } from "@/components/identity-builder/identity-context"
 import { useGoaTimeContext } from "@/components/goa-time-provider"
 import { IdentityEditorPanel } from "@/components/identity-builder/identity-editor-panel"
-import { renderPfp, renderBuilderId } from "@/lib/canvas-render"
+import { renderPfp, renderBuilderId, renderTeamId } from "@/lib/canvas-render"
 import type { GenerateMode } from "@/lib/identity-types"
 
 const MODES: { id: GenerateMode; label: string; icon: typeof ImageIcon; desc: string }[] = [
   { id: "pfp", label: "Profile Pic", icon: ImageIcon, desc: "Circle avatar for any platform" },
-  { id: "builder-id", label: "Builder ID", icon: IdCard, desc: "Full access pass card" },
+  { id: "builder-id", label: "Solo Builder ID", icon: IdCard, desc: "Full vertical access pass" },
+  { id: "team-id", label: "Team Pass ID", icon: Users, desc: "Horizontal Squad Pass for Solo, Duo & Trio" },
 ]
 
 export function IdentityBuilderLayout() {
   const { state, dispatch } = useIdentity()
   const { palette } = useGoaTimeContext()
-  const [mode, setMode] = useState<GenerateMode>(state.generateMode === "builder-id" ? "builder-id" : "pfp")
+  const [mode, setMode] = useState<GenerateMode>(state.generateMode)
   const [rendering, setRendering] = useState(false)
   const [copied, setCopied] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const renderCountRef = useRef(0)
+
+  // Sync mode with state.generateMode
+  useEffect(() => {
+    setMode(state.generateMode)
+  }, [state.generateMode])
 
   const pal = { accent: palette.accent, skyTop: palette.skyTop, skyBottom: palette.skyBottom, sunMoonColor: palette.sunMoonColor }
 
@@ -33,6 +39,7 @@ export function IdentityBuilderLayout() {
     setRendering(true)
     try {
       if (mode === "pfp") await renderPfp(canvas, state, renderId, renderCountRef)
+      else if (mode === "team-id") await renderTeamId(canvas, state, pal, renderId, renderCountRef)
       else await renderBuilderId(canvas, state, pal, renderId, renderCountRef)
     } catch (e) { console.error(e) }
     finally {
@@ -78,7 +85,7 @@ export function IdentityBuilderLayout() {
   return (
     <div className="flex flex-col gap-6">
       {/* Mode selector */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {MODES.map(({ id, label, icon: Icon, desc }) => {
           const active = mode === id
           return (

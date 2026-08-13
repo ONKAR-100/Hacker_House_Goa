@@ -24,7 +24,7 @@ export async function loadMemberPhoto(
         member.photoDataUrl,
         member.croppedAreaPixels,
         member.crop?.rotation || 0,
-        targetDiameter
+        Math.max(600, targetDiameter)
       )
     }
 
@@ -175,7 +175,7 @@ export async function renderPfp(
   renderId?: number,
   currentRenderIdRef?: { current: number }
 ): Promise<void> {
-  const SCALE = 2
+  const SCALE = 4
   const S = 512
   const r = 220, rw = 20
   const photoImg = await loadMemberPhoto(state.members[0], r * 2 * SCALE)
@@ -268,7 +268,7 @@ export async function renderBuilderId(
   renderId?: number,
   currentRenderIdRef?: { current: number }
 ): Promise<void> {
-  const SCALE = 2
+  const SCALE = 3
   const W = 480, H = 700
   const AVR = 58
   const photoImg = await loadMemberPhoto(state.members[0], AVR * 2 * SCALE)
@@ -418,7 +418,7 @@ export async function renderBuilderId(
   ctx.strokeStyle = BORDER; ctx.lineWidth = 1.5; ctx.stroke()
 }
 
-// ── Team ID Card ─────────────────────────────────────────────────────────────
+// ── Horizontal Team ID Pass Renderer ──────────────────────────────────────────
 
 export async function renderTeamId(
   canvas: HTMLCanvasElement,
@@ -427,95 +427,191 @@ export async function renderTeamId(
   renderId?: number,
   currentRenderIdRef?: { current: number }
 ): Promise<void> {
-  const W = 640, H = 400
-  const AVR = 58
-  const photoImgs = await Promise.all(state.members.map((m) => loadMemberPhoto(m, AVR * 2)))
+  const SCALE = 3
+  const W = 680, H = 420
+  const count = state.members.length
+  const AVR = count === 3 ? 46 : 52
 
-  // Abort if superseded by another render call
+  const photoImgs = await Promise.all(state.members.map((m) => loadMemberPhoto(m, AVR * 2 * SCALE)))
+
   if (renderId !== undefined && currentRenderIdRef && renderId !== currentRenderIdRef.current) {
     return
   }
 
-  canvas.width = W; canvas.height = H
+  canvas.width = W * SCALE; canvas.height = H * SCALE
+  canvas.style.width = `${W}px`; canvas.style.height = `${H}px`
   const ctx = canvas.getContext("2d")!
+  ctx.scale(SCALE, SCALE)
   ctx.clearRect(0, 0, W, H)
 
   const ACCENT = palette.accent
-  const CREAM = "#fdf8f2"
-  const DARK = "#1a1208"
-  const MUTED = "#7a6855"
-  const BORDER = "#e8d9c8"
+  const CARD_BG = "#FFFFFF"
+  const DARK = "#164A41"
+  const MUTED = "#3B7367"
+  const BORDER = "#C8E6DC"
 
-  // Card bg
-  rr(ctx, 0, 0, W, H, 18); ctx.fillStyle = CREAM; ctx.fill()
+  // 1. Card Background
+  rr(ctx, 0, 0, W, H, 18); ctx.fillStyle = CARD_BG; ctx.fill()
 
-  // Left sky panel
-  rr(ctx, 0, 0, 200, H, 18)
-  const sg = ctx.createLinearGradient(0, 0, 0, H)
+  // 2. Top Sky Panel (Header)
+  const skyH = 105
+  rr(ctx, 0, 0, W, skyH, 18)
+  const sg = ctx.createLinearGradient(0, 0, 0, skyH)
   sg.addColorStop(0, palette.skyTop); sg.addColorStop(1, palette.skyBottom)
   ctx.fillStyle = sg; ctx.fill()
-  ctx.fillRect(182, 0, 18, H)
+  ctx.fillRect(0, skyH - 15, W, 15)
 
-  // Sun in panel
-  ctx.beginPath(); ctx.arc(100, 70, 26, 0, Math.PI * 2)
+  // Sun Disc in Header
+  const sunX = W / 2, sunY = 52, sunR = 28
+  ctx.save()
+  ctx.shadowColor = palette.sunMoonColor
+  ctx.shadowBlur = 24
   ctx.fillStyle = palette.sunMoonColor
-  ctx.shadowColor = palette.sunMoonColor; ctx.shadowBlur = 18; ctx.fill(); ctx.shadowBlur = 0
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2); ctx.fill()
+  ctx.restore()
 
-  // Left panel text
-  ctx.fillStyle = "rgba(255,255,255,0.92)"
-  ctx.font = "bold 10px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "top"
-  ctx.fillText("[ HH GOA 2026 ]", 100, 108)
-  ctx.font = "bold 14px sans-serif"
-  const tn = state.teamName || "SQUAD PASS"
-  let tLine = tn, ty = 126
-  while (ctx.measureText(tLine).width > 160 && tLine.length > 1) tLine = tLine.slice(0, -1)
-  ctx.fillText(tLine.length < tn.length ? tLine + "…" : tLine, 100, ty)
+  // Sun Rays
+  ctx.save()
+  ctx.strokeStyle = "rgba(255,255,255,0.4)"
+  ctx.lineWidth = 2
+  for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
+    const rx1 = sunX + Math.cos(a) * (sunR + 4)
+    const ry1 = sunY + Math.sin(a) * (sunR + 4)
+    const rx2 = sunX + Math.cos(a) * (sunR + 12)
+    const ry2 = sunY + Math.sin(a) * (sunR + 12)
+    ctx.beginPath(); ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2); ctx.stroke()
+  }
+  ctx.restore()
 
-  ctx.font = "22px sans-serif"; ctx.fillText("🌴", 68, 160)
-  ctx.fillText("🌊", 108, 165)
+  // Header Canvas Decorations
+  drawPalmTree(ctx, 50, 105, 65, "rgba(255,255,255,0.22)")
+  drawPalmTree(ctx, 35, 95, 45, "rgba(255,255,255,0.15)")
+  drawPalmTree(ctx, W - 45, 100, 60, "rgba(255,255,255,0.20)")
+  drawPalmTree(ctx, W - 65, 108, 42, "rgba(255,255,255,0.13)")
+  drawBirds(ctx, 90, 40, "rgba(255,255,255,0.30)")
+  drawBirds(ctx, W - 110, 35, "rgba(255,255,255,0.25)")
+  drawWaveLines(ctx, 20, skyH - 12, W - 40, "rgba(255,255,255,0.18)")
 
-  // Pass ID badge bottom of left panel
-  rr(ctx, 14, H - 48, 172, 32, 16)
-  ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fill()
-  ctx.fillStyle = "white"; ctx.font = "bold 10px monospace"; ctx.textAlign = "center"
-  ctx.fillText(state.passId, 100, H - 29)
+  // Header Text
+  ctx.fillStyle = "rgba(255,255,255,0.95)"
+  ctx.font = "bold 12px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "top"
+  ctx.fillText("[ HH GOA 2026 ]", W / 2, 18)
 
-  // Dotted border + corners
+  ctx.fillStyle = "#FFFFFF"
+  ctx.font = "bold 18px monospace"
+  ctx.fillText("OFFICIAL TEAM ACCESS PASS", W / 2, 40)
+
+  // Header Divider
+  ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(32, 68); ctx.lineTo(W - 32, 68); ctx.stroke()
+
+  // 3. Team Name & Pass ID Banner Below Header
+  const bannerY = 118
+  // Team Name Pill
+  const teamTxt = `TEAM: ${(state.teamName || "MONSOON SQUAD").toUpperCase()}`
+  ctx.font = "bold 13px monospace"
+  const teamW = ctx.measureText(teamTxt).width + 24
+  rr(ctx, 24, bannerY, teamW, 26, 6)
+  ctx.fillStyle = "#E6F5F0"; ctx.fill()
+  ctx.strokeStyle = "#C8E6DC"; ctx.lineWidth = 1; ctx.stroke()
+  ctx.fillStyle = DARK; ctx.textAlign = "left"; ctx.textBaseline = "middle"
+  ctx.fillText(teamTxt, 36, bannerY + 13)
+
+  // Pass ID Pill on Right
+  const passTxt = `PASS ID: ${state.passId}`
+  ctx.font = "bold 11px monospace"
+  const passW = ctx.measureText(passTxt).width + 20
+  rr(ctx, W - passW - 24, bannerY, passW, 26, 6)
+  ctx.fillStyle = DARK; ctx.fill()
+  ctx.fillStyle = "#FFFFFF"; ctx.textAlign = "right"; ctx.textBaseline = "middle"
+  ctx.fillText(passTxt, W - 34, bannerY + 13)
+
+  // Squad Title Pill (center if set)
+  if (state.title) {
+    const titleTxt = `⚡ ${state.title.toUpperCase()} ⚡`
+    ctx.font = "bold 11px sans-serif"
+    const titleW = ctx.measureText(titleTxt).width + 20
+    const titleX = (W - titleW) / 2
+    rr(ctx, titleX, bannerY, titleW, 26, 13)
+    const titleGrad = ctx.createLinearGradient(titleX, 0, titleX + titleW, 0)
+    titleGrad.addColorStop(0, "#FF6B5E")
+    titleGrad.addColorStop(1, "#FFC857")
+    ctx.fillStyle = titleGrad; ctx.fill()
+    ctx.fillStyle = DARK; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+    ctx.fillText(titleTxt, W / 2, bannerY + 13)
+  }
+
+  // 4. Member Columns Section
+  const slotW = (W - 32) / count
+  const memberStartY = 160
+
+  for (let i = 0; i < count; i++) {
+    const m = state.members[i]
+    const cX = 16 + slotW * i + slotW / 2
+
+    // Role Label Tag (LEADER for member 0, MEMBER 2 / 3 for rest)
+    const roleTag = i === 0 ? "LEADER / CAPTAIN" : `MEMBER ${i + 1}`
+    ctx.font = "bold 10px monospace"
+    const tagW = ctx.measureText(roleTag).width + 16
+    const tagY = memberStartY + 4
+    rr(ctx, cX - tagW / 2, tagY, tagW, 18, 4)
+    ctx.fillStyle = i === 0 ? "#FF6B5E" : "#E6F5F0"
+    ctx.fill()
+    ctx.fillStyle = i === 0 ? "#FFFFFF" : DARK
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"
+    ctx.fillText(roleTag, cX, tagY + 9)
+
+    // PFP Avatar with Ring
+    const photoY = memberStartY + 74
+    drawFrameRing(ctx, state.frameId, cX, photoY, AVR, 5)
+    drawPhotoCircle(ctx, photoImgs[i], cX, photoY, AVR)
+
+    // Member Name (always uppercase)
+    const mName = (m?.name || (i === 0 ? "LEADER NAME" : `MEMBER ${i + 1}`)).toUpperCase()
+    ctx.fillStyle = DARK
+    ctx.font = "bold 14px sans-serif"
+    ctx.textAlign = "center"; ctx.textBaseline = "top"
+    
+    // Truncate name if too long for column slot
+    let displayMName = mName
+    while (ctx.measureText(displayMName).width > slotW - 20 && displayMName.length > 2) {
+      displayMName = displayMName.slice(0, -1)
+    }
+    if (displayMName.length < mName.length) displayMName += "…"
+    ctx.fillText(displayMName, cX, photoY + AVR + 10)
+
+    // Member Class / Role Pill
+    const mClass = (m?.builderClass || "BUILDER").toUpperCase()
+    ctx.font = "600 10px sans-serif"
+    const classW = ctx.measureText(mClass).width + 14
+    const classY = photoY + AVR + 30
+    rr(ctx, cX - classW / 2, classY, classW, 18, 9)
+    ctx.fillStyle = `${ACCENT}18`; ctx.fill()
+    ctx.strokeStyle = `${ACCENT}55`; ctx.lineWidth = 1; ctx.stroke()
+    ctx.fillStyle = ACCENT; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+    ctx.fillText(mClass, cX, classY + 9)
+  }
+
+  // 5. Footer Bar
+  const footerY = H - 45
+  ctx.strokeStyle = BORDER; ctx.lineWidth = 1
+  ctx.setLineDash([4, 4])
+  ctx.beginPath(); ctx.moveTo(24, footerY); ctx.lineTo(W - 24, footerY); ctx.stroke()
+  ctx.setLineDash([])
+
+  // Barcode on Left
+  drawBarcode(ctx, 24, footerY + 10, 180, 20, DARK + "aa")
+
+  // Issued & Serial Info on Right
+  ctx.fillStyle = MUTED
+  ctx.font = "10px monospace"; ctx.textAlign = "right"; ctx.textBaseline = "middle"
+  ctx.fillText(`GOA, INDIA · SERIAL: ${state.serial}`, W - 24, footerY + 20)
+
+  // 6. Dotted Outer Border & Corner Squares
   dottedBorder(ctx, W, H, ACCENT)
   drawCornerSquares(ctx, W, H, ACCENT)
 
-  // Member avatars (right section)
-  const count = state.members.length
-  const slotW = (W - 210) / count
-  for (let i = 0; i < count; i++) {
-    const m = state.members[i]
-    const slotCX = 210 + slotW * i + slotW / 2
-    drawFrameRing(ctx, state.frameId, slotCX, 130, AVR, 6)
-    drawPhotoCircle(ctx, photoImgs[i], slotCX, 130, AVR)
-    ctx.fillStyle = DARK; ctx.font = "bold 13px sans-serif"
-    ctx.textAlign = "center"; ctx.textBaseline = "top"
-    ctx.fillText(m.name || `Builder ${i + 1}`, slotCX, 197)
-    if (m.builderClass) {
-      ctx.fillStyle = ACCENT; ctx.font = "600 11px sans-serif"
-      ctx.fillText(m.builderClass, slotCX, 214)
-    }
-  }
-
-  // Title badge if set
-  if (state.title) {
-    const bh = 34, bw = 220, bx = W - bw - 24, by = H - 60
-    rr(ctx, bx, by, bw, bh, bh / 2)
-    ctx.fillStyle = ACCENT; ctx.fill()
-    ctx.fillStyle = "white"; ctx.font = "bold 12px sans-serif"
-    ctx.textAlign = "center"; ctx.textBaseline = "middle"
-    ctx.fillText(`⚡ ${state.title.toUpperCase()} ⚡`, bx + bw / 2, by + bh / 2)
-  }
-
-  // Bottom barcode strip
-  ctx.fillStyle = BORDER; ctx.fillRect(210, H - 28, W - 226, 1)
-  drawBarcode(ctx, 220, H - 26, W - 244, 16, DARK + "88")
-
-  // Card border
+  // 7. Outer Card Border
   rr(ctx, 0, 0, W, H, 18)
   ctx.strokeStyle = BORDER; ctx.lineWidth = 1.5; ctx.stroke()
 }

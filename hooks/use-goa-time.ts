@@ -54,12 +54,15 @@ const PHASE_HOURS: Record<GoaPhase, number> = {
   night: 22,
 }
 
+const STABLE_SSR_DATE = new Date("2026-08-13T12:00:00.000Z")
+
 export function useGoaTime(): GoaTimeState {
-  const [liveNow, setLiveNow] = useState<Date>(() => new Date())
+  const [liveNow, setLiveNow] = useState<Date>(STABLE_SSR_DATE)
   const [manualHour, setManualHourState] = useState<number | null>(null)
   const reducedMotion = usePrefersReducedMotion()
 
   useEffect(() => {
+    setLiveNow(new Date())
     const interval = setInterval(() => setLiveNow(new Date()), 30_000)
     return () => clearInterval(interval)
   }, [])

@@ -72,6 +72,21 @@ export function StepTitle() {
       </div>
 
       <div className="flex flex-col gap-2">
+        <label htmlFor="team-name" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Team / Squad Name
+        </label>
+        <input
+          id="team-name"
+          value={state.teamName}
+          onChange={(e) => dispatch({ type: "SET_TEAM_NAME", teamName: e.target.value })}
+          placeholder="e.g. MONSOON HACKERS"
+          maxLength={32}
+          className="h-10 rounded-lg border border-border bg-background px-3 text-sm font-semibold uppercase outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        />
+        <p className="text-[11px] text-muted-foreground">Appears as your Team / Squad on your official Builder ID Pass (always saved in CAPITAL LETTERS).</p>
+      </div>
+
+      <div className="flex flex-col gap-2">
         <label htmlFor="stack-line" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           I Build ___
         </label>
@@ -81,7 +96,7 @@ export function StepTitle() {
           onChange={(e) => dispatch({ type: "SET_STACK_LINE", stackLine: e.target.value })}
           placeholder="e.g. AI agents, weird APIs, and sandcastles"
           maxLength={48}
-          className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 rounded-lg border border-border bg-background px-3 text-sm uppercase outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         />
       </div>
     </div>

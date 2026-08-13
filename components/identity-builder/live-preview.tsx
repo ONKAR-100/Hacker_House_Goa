@@ -1,24 +1,26 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { Download, RefreshCw, ImageIcon, IdCard, CheckCircle2 } from "lucide-react"
+import { Download, RefreshCw, ImageIcon, IdCard, Users, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useIdentity } from "@/components/identity-builder/identity-context"
 import { useGoaTimeContext } from "@/components/goa-time-provider"
-import { renderPfp, renderBuilderId } from "@/lib/canvas-render"
+import { renderPfp, renderBuilderId, renderTeamId } from "@/lib/canvas-render"
 import { cn } from "@/lib/utils"
+import type { GenerateMode } from "@/lib/identity-types"
 
-type Tab = "pfp" | "builder-id"
+type Tab = GenerateMode
 
 const TABS: { id: Tab; label: string; icon: typeof ImageIcon }[] = [
   { id: "pfp", label: "PFP", icon: ImageIcon },
-  { id: "builder-id", label: "Builder ID", icon: IdCard },
+  { id: "builder-id", label: "Solo ID", icon: IdCard },
+  { id: "team-id", label: "Team ID", icon: Users },
 ]
 
 export function LivePreviewPanel() {
   const { state } = useIdentity()
   const { palette } = useGoaTimeContext()
-  const [activeTab, setActiveTab] = useState<Tab>(state.generateMode === "builder-id" ? "builder-id" : "pfp")
+  const [activeTab, setActiveTab] = useState<Tab>(state.generateMode)
   const [rendering, setRendering] = useState(false)
   const [copied, setCopied] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -39,6 +41,8 @@ export function LivePreviewPanel() {
     try {
       if (activeTab === "pfp") {
         await renderPfp(canvas, state, renderId, renderCountRef)
+      } else if (activeTab === "team-id") {
+        await renderTeamId(canvas, state, paletteForRender, renderId, renderCountRef)
       } else {
         await renderBuilderId(canvas, state, paletteForRender, renderId, renderCountRef)
       }
@@ -59,9 +63,7 @@ export function LivePreviewPanel() {
 
   // Sync tab to generateMode when user changes mode
   useEffect(() => {
-    if (state.generateMode === "pfp" || state.generateMode === "builder-id") {
-      setActiveTab(state.generateMode as Tab)
-    }
+    setActiveTab(state.generateMode)
   }, [state.generateMode])
 
   // ── Save as PNG ──
